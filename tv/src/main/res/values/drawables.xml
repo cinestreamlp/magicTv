@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="drawable" name="alias_universal_csa_10_white">@android:color/transparent</item>
+    <item type="drawable" name="alias_universal_csa_12_white">@android:color/transparent</item>
+    <item type="drawable" name="alias_universal_csa_16_white">@android:color/transparent</item>
+    <item type="drawable" name="alias_universal_csa_18_white">@android:color/transparent</item>
+    <item type="drawable" name="notification_template_icon_bg">#3333b5e5</item>
+</resources>
