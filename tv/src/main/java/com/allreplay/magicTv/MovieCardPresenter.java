@@ -27,8 +27,11 @@ import android.view.ViewGroup;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.magictvapi.model.Video;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 
 /*
  * A ProgramCardPresenter is used to generate Views and bind Objects to them on demand.
@@ -41,8 +44,9 @@ public class MovieCardPresenter extends Presenter {
     private static int CARD_WIDTH = 313;
     private static int CARD_HEIGHT = 176;
 
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
     static class ViewHolder extends Presenter.ViewHolder {
-        private Movie mMovie;
+        private Video mMovie;
         private ImageCardView mCardView;
         private Drawable mDefaultCardImage;
         private PicassoImageCardViewTarget mImageCardViewTarget;
@@ -54,11 +58,11 @@ public class MovieCardPresenter extends Presenter {
             mDefaultCardImage = mContext.getResources().getDrawable(R.drawable.movie);
         }
 
-        public void setMovie(Movie m) {
+        public void setVideo(Video m) {
             mMovie = m;
         }
 
-        public Movie getMovie() {
+        public Video getMovie() {
             return mMovie;
         }
 
@@ -91,26 +95,29 @@ public class MovieCardPresenter extends Presenter {
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
 
-        Movie movie = (Movie) item;
-        ((ViewHolder) viewHolder).setMovie(movie);
+        Video movie = (Video) item;
+        ((ViewHolder) viewHolder).setVideo(movie);
 
         Log.d(TAG, "onBindViewHolder");
         ((ViewHolder) viewHolder).mCardView.setTitleText(movie.getTitle());
 
-        Integer duration = movie.getDuration();
-        int heures = duration / 3600;
-        int minutes = (duration % 3600)/ 60;
-        int secondes = (duration % 3600) % 60;
+        String formattedDuration = Utils.formatMillis(((int) movie.getDuration()));
+        String publicationDate = simpleDateFormat.format(movie.getPublicationDate().getTime());
+        /*
+        long heures = duration / 3600;
+        long minutes = (duration % 3600)/ 60;
+        long secondes = (duration % 3600) % 60;
 
         if (heures > 0 || minutes > 0) {
             ((ViewHolder) viewHolder).mCardView.setContentText((heures > 0 ? heures + " h " : "") + minutes + " min");
         } else {
             ((ViewHolder) viewHolder).mCardView.setContentText(secondes + " s");
-        }
+        }*/
 
+        ((ViewHolder) viewHolder).mCardView.setContentText(publicationDate + " - " + formattedDuration);
         ((ViewHolder) viewHolder).mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
         try {
-            ((ViewHolder) viewHolder).updateCardViewImage(new URI(movie.getImage().getUri().toString()));
+            ((ViewHolder) viewHolder).updateCardViewImage(new URI(movie.getImageUrl()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

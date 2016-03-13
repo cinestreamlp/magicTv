@@ -1,11 +1,13 @@
 package org.magictvapi.model;
 
+import java.io.Serializable;
+
 /**
  * Created by thomas on 11/03/2016.
  *
  * a tile is an entity who can be show by a tile
  */
-public abstract class Tile {
+public abstract class Tile implements Serializable {
 
     /**
      * the element id

@@ -46,9 +46,11 @@ import org.magictvapi.Callback;
 import org.magictvapi.model.Folder;
 import org.magictvapi.model.Program;
 import org.magictvapi.model.TvChain;
-import org.magictvapi.tvchain.m6replay.Loader;
+import org.magictvapi.model.Video;
+import org.magictvapi.tvchain.m6replay.loader.M6ChainLoader;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -69,7 +71,7 @@ public class MainFragment extends BrowseFragment {
     private Timer mBackgroundTimer;
     private final Handler mHandler = new Handler();
     private URI mBackgroundURI;
-    Movie mMovie;
+    Video mMovie;
     ProgramCardPresenter mProgramCardPresenter;
 
     @Override
@@ -100,7 +102,7 @@ public class MainFragment extends BrowseFragment {
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
 
-        Loader loader = new Loader();
+        M6ChainLoader loader = new M6ChainLoader();
         loader.onSuccess(new Callback<TvChain>() {
             @Override
             public void call(TvChain tvChain) {
@@ -182,9 +184,9 @@ public class MainFragment extends BrowseFragment {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (item instanceof Program) {
-                Program movie = (Program) item;
-                if (movie.getId() == -1) {
-
+                Program program = (Program) item;
+                if (program.getId() == -1) {
+                    /*
                     Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
                     Movie movie2 = new Movie();
                    // movie2.setVideoUrl("https://sslhls.m6tv.cdn.sfr.net/hls-live/livepkgr/_definst_/m6_hls_aes/m6_hls_aes_856.m3u8");
@@ -193,11 +195,13 @@ public class MainFragment extends BrowseFragment {
                     movie2.setVideoUrl("http://catchup-drm.pfd.sfr.net/out/vod/hls/m6replay/a/c/d/4/m6_11481744/m6_11481744.m3u8/video_1_200000.m3u8");
                     intent.putExtra(DetailsActivity.MOVIE, movie2);
 
-                    getActivity().startActivity(intent/*, bundle*/);
+                    getActivity().startActivity(intent/*, bundle);
+
+                    */
                 } else {
                     Log.d(TAG, "Item: " + item.toString());
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                   // intent.putExtra(DetailsActivity.PROGRAM, movie);
+                    intent.putExtra(DetailsActivity.PROGRAM, program);
 
                    /* Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             getActivity(),
@@ -205,8 +209,8 @@ public class MainFragment extends BrowseFragment {
                             DetailsActivity.SHARED_ELEMENT_NAME).toBundle();*/
                     getActivity().startActivity(intent/*, bundle*/);
                 }
-            } else  if (item instanceof Movie) {
-                Movie movie = (Movie) item;
+            } else  if (item instanceof Video) {
+                Video movie = (Video) item;
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.MOVIE, movie);
@@ -232,9 +236,13 @@ public class MainFragment extends BrowseFragment {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-            if (item instanceof Movie) {
-                mBackgroundURI = ((Movie) item).getBackgroundImageURI();
-                startBackgroundTimer();
+            if (item instanceof Video) {
+                try {
+                    mBackgroundURI = new URI(((Video) item).getBackgroundImageUrl());
+                    startBackgroundTimer();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
             }
 
         }

@@ -17,15 +17,19 @@ import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
+
+import org.magictvapi.Callback;
+import org.magictvapi.model.Video;
 
 
 /**
  * PlaybackOverlayActivity for video playback that loads PlaybackOverlayFragment
  */
 public class PlaybackOverlayActivity extends Activity implements
-        PlaybackOverlayFragment.OnPlayPauseClickedListener {
+        PlaybackOverlayFragment.OnVideoActionListener {
     private static final String TAG = "PlaybackOverlayActivity";
 
     private static final double MEDIA_HEIGHT = 0.95;
@@ -37,6 +41,7 @@ public class PlaybackOverlayActivity extends Activity implements
 
     private VideoView mVideoView;
     private PlaybackState mPlaybackState = PlaybackState.IDLE;
+    private Video currentItem;
 
     /**
      * Called when the activity is first created.
@@ -57,10 +62,18 @@ public class PlaybackOverlayActivity extends Activity implements
     }
 
     /**
-     * Implementation of OnPlayPauseClickedListener
+     * Implementation of OnVideoActionListener
      */
-    public void onFragmentPlayPause(Movie movie, int position, Boolean playPause) {
-        mVideoView.setVideoPath(movie.getVideoUrl());
+    public void onFragmentPlayPause(Video movie, int position, Boolean playPause) {
+        if (position == 0) {
+            movie.getDataUrl(new Callback<String>() {
+                @Override
+                public void call(String path) {
+                    Log.e(TAG, "load path " + path);
+                    mVideoView.setVideoPath(path);
+                }
+            });
+        }
 
         if (position == 0 || mPlaybackState == PlaybackState.IDLE) {
             setupCallbacks();
@@ -79,8 +92,22 @@ public class PlaybackOverlayActivity extends Activity implements
         }
     }
 
+
+    @Override
+    public void onSeekTo(int position) {
+        mVideoView.seekTo(position);
+    }
+
+    @Override
+    public void setCurrentItem(Video movie) {
+        this.currentItem = movie;
+    }
+
     private void loadViews() {
         mVideoView = (VideoView) findViewById(R.id.videoView);
+        if (this.currentItem != null) {
+            this.onFragmentPlayPause(this.currentItem, 0, true);
+        }
     }
 
     private void overScan() {

@@ -10,5 +10,5 @@ public interface Callback<T> {
      * methods for eun callback
      * @param params
      */
-    void call(T params);
+    void call(T param);
 }

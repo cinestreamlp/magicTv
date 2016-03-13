@@ -2,6 +2,7 @@ package org.magictvapi.model;
 
 import org.magictvapi.Callback;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,12 +10,12 @@ import java.util.List;
  *
  * A program have a list of videos like Game of thrones
  */
-public abstract class Program extends Tile {
+public abstract class Program extends Tile  {
 
     /**
-     * load videos and return the video list
+     * load video groups and return the video list
      *
      * @param callback the async callback method
      */
-    public abstract void getVideos(Callback<List<Video>> callback);
+    public abstract void getVideoGroups(Callback<List<VideoGroup>> callback);
 }

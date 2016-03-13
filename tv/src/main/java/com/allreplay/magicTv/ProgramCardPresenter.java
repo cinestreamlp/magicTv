@@ -28,6 +28,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.magictvapi.model.Program;
+import org.magictvapi.model.Video;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -110,23 +111,6 @@ public class ProgramCardPresenter extends Presenter {
                 }
             }
             //}
-        } else {
-            Movie movie = (Movie) item;
-           // ((ViewHolder) viewHolder).setMovie(movie);
-
-            Log.d(TAG, "onBindViewHolder");
-            //if (movie.getCardImageUrl() != null) {
-            ((ViewHolder) viewHolder).mCardView.setTitleText("test");
-            ((ViewHolder) viewHolder).mCardView.setContentText("test");
-            ((ViewHolder) viewHolder).mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
-            if (movie.getImage() != null) {
-                try {
-                    ((ViewHolder) viewHolder).updateCardViewImage(new URI(movie.getImage().getUri().toString()));
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-            }
-
         }
     }
 

@@ -1,5 +1,6 @@
 package com.allreplay.magicTv;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -21,13 +22,13 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.allreplay.magicTv.replayService.http.AsyncClipLoader;
-import com.allreplay.magicTv.replayService.http.AsyncVideosLoader;
-import com.allreplay.magicTv.replayService.http.Categorie;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.magictvapi.Callback;
 import org.magictvapi.model.Program;
+import org.magictvapi.model.Video;
+import org.magictvapi.model.VideoGroup;
 
 import java.io.IOException;
 import java.net.URI;
@@ -58,8 +59,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         Log.i(TAG, "onCreate DetailsFragment");
         super.onCreate(savedInstanceState);
 
-        mDorPresenter =
-                new FullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
+        mDorPresenter = new FullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
 
         BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
         backgroundManager.attach(getActivity().getWindow());
@@ -75,10 +75,13 @@ public class VideoDetailsFragment extends DetailsFragment {
         //mDorPresenter.setSharedElementEnterTransition(getActivity(),
         //        DetailsActivity.SHARED_ELEMENT_NAME);
 
-        try {
-            updateBackground(new URI(mSelectedProgram.getImageUrl()));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        String backgroundUrl = mSelectedProgram.getBackgroundImageUrl() != null ? mSelectedProgram.getBackgroundImageUrl() : mSelectedProgram.getImageUrl();
+        if (backgroundUrl != null) {
+            try {
+                updateBackground(new URI(backgroundUrl));
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
         setOnItemViewClickedListener(new ItemViewClickedListener());
 
@@ -120,35 +123,32 @@ public class VideoDetailsFragment extends DetailsFragment {
             ps.addClassPresenter(DetailsOverviewRow.class, mDorPresenter);
             ps.addClassPresenter(ListRow.class, new ListRowPresenter());
 
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(ps);
+            final ArrayObjectAdapter adapter = new ArrayObjectAdapter(ps);
             adapter.add(detailRow);
+            setAdapter(adapter);
 
+            mSelectedProgram.getVideoGroups(new Callback<List<VideoGroup>>() {
+                @Override
+                public void call(List<VideoGroup> videoGroups) {
+                    for (VideoGroup videoGroup : videoGroups) {
+                        final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new MovieCardPresenter());
+                        videoGroup.getVideos(new Callback<List<Video>>() {
+                            @Override
+                            public void call(List<Video> videos) {
+                                for (Video video : videos) {
+                                    if (video.getImageUrl() == null) {
+                                        video.setImageUrl(mSelectedProgram.getImageUrl());
+                                    }
+                                    listRowAdapter.add(video);
+                                }
+                            }
+                        });
 
-            AsyncVideosLoader videoLoader = new AsyncVideosLoader();
-            videoLoader.execute(mSelectedProgram.getId());
-            try {
-                List<Categorie> categories = videoLoader.get();
-
-
-                for (Categorie categorie: categories) {
-                    ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new MovieCardPresenter());
-
-                    /*for (Movie movie: categorie.getMovies()) {
-                        if (movie.getImage() == null) {
-                            movie.setImage(mSelectedProgram.getImageUrl());
-                        }
-                        listRowAdapter.add(movie);
-                    }*/
-
-                    HeaderItem header = new HeaderItem(0, categorie.getName());
-                    adapter.add(new ListRow(header, listRowAdapter));
+                        HeaderItem header = new HeaderItem(videoGroup.getId(), videoGroup.getTitle());
+                        adapter.add(new ListRow(header, listRowAdapter));
+                    }
                 }
-                setAdapter(adapter);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            });
         }
 
     }
@@ -158,28 +158,15 @@ public class VideoDetailsFragment extends DetailsFragment {
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
-            if (item instanceof Movie) {
-                Movie movie = (Movie) item;
-                Log.d(TAG, "Item: " + ((Movie) item).getTitle());
+            if (item instanceof Video) {
+                Video movie = (Video) item;
+                Log.d(TAG, "Item: " + ((Video) item).getTitle());
 
-                AsyncClipLoader clipLoader = new AsyncClipLoader();
-                clipLoader.execute(movie.getId());
-                try {
-                    Clip clip = clipLoader.get();
-                    Log.i(TAG, clip.getFilePath());
-                    MediaPlayer mediaplayer = new MediaPlayer();
-                    try {
-                        mediaplayer.setDataSource("http://e114.cdn.m6web.fr/prime/" + clip.getFilePath());
-                        mediaplayer.prepare();
-                        mediaplayer.start();
-                    } catch (Exception e) {
-                        Log.e("test", e.getMessage(), e);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+
+                Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
+                intent.putExtra(DetailsActivity.MOVIE, movie);
+
+                getActivity().startActivity(intent);
 
             }
         }

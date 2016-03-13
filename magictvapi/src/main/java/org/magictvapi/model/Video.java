@@ -1,16 +1,13 @@
 package org.magictvapi.model;
 
+import org.magictvapi.Callback;
+
 import java.util.Calendar;
 
 /**
  * Created by thomas on 11/03/2016.
  */
 public abstract class Video extends Tile {
-    /**
-     * the url of m3u8 file
-     */
-    private String dataUrl;
-
     /**
      * the file duration in millisecond
      */
@@ -21,13 +18,11 @@ public abstract class Video extends Tile {
      */
     private Calendar publicationDate;
 
-    public String getDataUrl() {
-        return dataUrl;
-    }
-
-    public void setDataUrl(String dataUrl) {
-        this.dataUrl = dataUrl;
-    }
+    /**
+     *  get the URL for the m3u8 file
+     * @param callback
+     */
+    public abstract void getDataUrl(Callback<String> callback);
 
     public long getDuration() {
         return duration;
