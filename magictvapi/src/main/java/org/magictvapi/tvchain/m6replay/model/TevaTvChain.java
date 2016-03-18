@@ -5,15 +5,14 @@ import org.magictvapi.model.Folder;
 import org.magictvapi.model.TvChain;
 import org.magictvapi.model.TvProgram;
 import org.magictvapi.tvchain.m6replay.loader.M6TvFolderLoader;
-import org.magictvapi.tvchain.m6replay.loader.M6TvProgramLoader;
 
 import java.util.List;
 
 /**
  * Created by thomas on 11/03/2016.
  */
-public class M6TvChain extends TvChain {
-    public static final String CHAIN_NAME = "m6_replay";
+public class TevaTvChain extends TvChain {
+    public static final String CHAIN_NAME = "teva_replay";
 
     @Override
     public void getFolders(Callback<List<Folder>> callback) {
@@ -22,8 +21,8 @@ public class M6TvChain extends TvChain {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(118, "m6");
+        /*M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(191, "teva");
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
-    }
+   */ }
 }

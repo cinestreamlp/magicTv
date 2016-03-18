@@ -3,15 +3,9 @@ package org.magictvapi.tvchain.m6replay.loader;
 import android.util.Log;
 import android.util.Xml;
 
-import org.magictvapi.loader.Loader;
-import org.magictvapi.model.Folder;
 import org.magictvapi.model.Program;
-import org.magictvapi.model.TvChain;
 import org.magictvapi.model.Video;
 import org.magictvapi.model.VideoGroup;
-import org.magictvapi.tvchain.m6replay.model.M6Folder;
-import org.magictvapi.tvchain.m6replay.model.M6Program;
-import org.magictvapi.tvchain.m6replay.model.M6TvChain;
 import org.magictvapi.tvchain.m6replay.model.M6Video;
 import org.magictvapi.tvchain.m6replay.model.M6VideoGroup;
 import org.xmlpull.v1.XmlPullParser;
@@ -19,9 +13,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * Created by thomas on 11/03/2016.
@@ -33,8 +24,6 @@ public class M6VideosLoader extends XMLLoader<VideoGroup> {
     private static final String INFO_URL = "http://wsaetv.sfr.com/5.0/WSAE?appId=fusion_gphone4&appVersion=7.0.3&method=getVODCategoryDetails&version=1&categoryId=";
 
     private static final String IMAGE_URL = "http://images.wsaetv.sfr.com/IMAGESTOOLS/BARAKA/ORIGINAL_SIZE/";
-
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static final String TAG = M6VideosLoader.class.getName();
 
@@ -119,9 +108,7 @@ public class M6VideosLoader extends XMLLoader<VideoGroup> {
                     parser.nextTag(); // end image
                     parser.nextTag(); // end images
                 } else if (name.equals("diffusion-date")) {
-                    Calendar c = Calendar.getInstance();
-                    c.setTime(DATE_FORMAT.parse(getStringContent(parser)));
-                    video.setPublicationDate(c);
+                    video.setPublicationDate(getDateContent(parser));
                 } else if (name.equals("duration")) {
                     video.setDuration(Long.parseLong(getStringContent(parser)) * 1000);
                 } else if (!name.equals("images") && !name.equals("image")) {
@@ -131,8 +118,6 @@ public class M6VideosLoader extends XMLLoader<VideoGroup> {
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
 

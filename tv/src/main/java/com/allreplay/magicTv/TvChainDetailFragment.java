@@ -16,14 +16,15 @@ package com.allreplay.magicTv;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -31,38 +32,36 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.magictvapi.Callback;
+import org.magictvapi.Config;
 import org.magictvapi.model.Folder;
 import org.magictvapi.model.Program;
 import org.magictvapi.model.TvChain;
+import org.magictvapi.model.TvProgram;
 import org.magictvapi.model.Video;
-import org.magictvapi.tvchain.m6replay.loader.M6ChainLoader;
 
+import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainFragment extends BrowseFragment {
-    private static final String TAG = "MainFragment";
+public class TvChainDetailFragment extends BrowseFragment {
+    private static final String TAG = "TvChainDetailFragment";
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int GRID_ITEM_WIDTH = 200;
     private static final int GRID_ITEM_HEIGHT = 200;
-    private static final int NUM_ROWS = 6;
-    private static final int NUM_COLS = 15;
 
     private ArrayObjectAdapter mRowsAdapter;
     private Drawable mDefaultBackground;
@@ -71,7 +70,6 @@ public class MainFragment extends BrowseFragment {
     private Timer mBackgroundTimer;
     private final Handler mHandler = new Handler();
     private URI mBackgroundURI;
-    Video mMovie;
     ProgramCardPresenter mProgramCardPresenter;
 
     @Override
@@ -85,6 +83,7 @@ public class MainFragment extends BrowseFragment {
         loadRows();
 
         setupEventListeners();
+
     }
 
     @Override
@@ -96,46 +95,82 @@ public class MainFragment extends BrowseFragment {
         }
     }
 
+    public void loadBadge(final TvChain tvChain) {
+        AsyncTask<Void, Void, BitmapDrawable> task = new AsyncTask<Void, Void, BitmapDrawable>() {
+            @Override
+            protected BitmapDrawable doInBackground(Void... params) {
+                try {
+                    return new BitmapDrawable(null, new URL(tvChain.getImageUrl()).openStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(BitmapDrawable image) {
+                super.onPostExecute(image);
+                try {
+                    setBadgeDrawable(image);
+                } catch (Exception e) {
+                    setTitle(tvChain.getTitle());
+                    Log.e(TAG, e.getMessage(), e);
+                }
+            }
+        };
+        task.execute();
+    }
+
     private void loadRows() {
         // load M6 chains
         // TODO load others chains
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
 
-        M6ChainLoader loader = new M6ChainLoader();
-        loader.onSuccess(new Callback<TvChain>() {
+        TvChain tvChain = (TvChain) getActivity().getIntent().getSerializableExtra(DetailsActivity.CHAIN);
+
+        Config.context = this.getActivity();
+
+        loadBadge(tvChain);
+
+        tvChain.getFolders(new Callback<List<Folder>>() {
             @Override
-            public void call(TvChain tvChain) {
-                setTitle(tvChain.getTitle());
+            public void call(final List<Folder> folders) {
+                mProgramCardPresenter = new ProgramCardPresenter();
 
-                tvChain.getFolders(new Callback<List<Folder>>() {
-                    @Override
-                    public void call(final List<Folder> folders) {
-                        MainFragment.this.getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mProgramCardPresenter = new ProgramCardPresenter();
+                for (Folder folder : folders) {
+                    final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mProgramCardPresenter);
+                    folder.getPrograms(new Callback<List<Program>>() {
+                        @Override
+                        public void call(List<Program> programs) {
+                            listRowAdapter.addAll(0, programs);
+                        }
+                    });
 
-                                for (Folder folder : folders) {
-                                    final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mProgramCardPresenter);
-                                    folder.getPrograms(new Callback<List<Program>>() {
-                                        @Override
-                                        public void call(List<Program> programs) {
-                                            listRowAdapter.addAll(0, programs);
-                                        }
-                                    });
-
-                                    HeaderItem header = new HeaderItem(folder.getId(), folder.getTitle());
-                                    mRowsAdapter.add(new ListRow(header, listRowAdapter));
-                                }
-                            }
-                        });
-                    }
-                });
+                    HeaderItem header = new HeaderItem(folder.getId(), folder.getTitle());
+                    mRowsAdapter.add(new ListRow(header, listRowAdapter));
+                }
             }
         });
-        loader.execute();
 
+        tvChain.getTvProgram(new Callback<TvProgram>() {
+            @Override
+            public void call(final TvProgram tvProgram) {
+                tvProgram.getCurrentPlayedVideo(new Callback<Video>() {
+                    @Override
+                    public void call(Video currentVideo) {
+                        if (currentVideo != null) {
+                            HeaderItem header = new HeaderItem(0, "Direct");
+                            final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new MovieCardPresenter());
+                            listRowAdapter.add(tvProgram);
+                            mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
+                            setSelectedPosition(0);
+                        }
+                    }
+                });
+
+            }
+        });
     }
 
     private void prepareBackgroundManager() {
@@ -151,10 +186,6 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        // setBadgeDrawable(getActivity().getResources().getDrawable(
-        // R.drawable.videos_by_google_banner));
-        // setTitle(getString(R.string.browse_title)); // Badge, when set, takes precedent
-        // over title
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
 
@@ -180,54 +211,34 @@ public class MainFragment extends BrowseFragment {
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
-        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, final Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (item instanceof Program) {
                 Program program = (Program) item;
-                if (program.getId() == -1) {
-                    /*
-                    Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
-                    Movie movie2 = new Movie();
-                   // movie2.setVideoUrl("https://sslhls.m6tv.cdn.sfr.net/hls-live/livepkgr/_definst_/m6_hls_aes/m6_hls_aes_856.m3u8");
-                    //movie2.setVideoUrl("https://catchup-drm.pfd.sfr.net/out/vod/hls/m6replay/a/c/d/4/m6_11481744/m6_11481744.m3u8?msisdn=93641610&transid=er_error&ServiceId=sfrtv_ncl&loginterval=0&media=nl-fusion_gphone4-64-w&life=3600&gt=1457718334428&tokenname=SFRPLAY3&key=E300C0A15005BE60D0FD96354A969B6D");
-                    movie2.setDuration(90);
-                    movie2.setVideoUrl("http://catchup-drm.pfd.sfr.net/out/vod/hls/m6replay/a/c/d/4/m6_11481744/m6_11481744.m3u8/video_1_200000.m3u8");
-                    intent.putExtra(DetailsActivity.MOVIE, movie2);
-
-                    getActivity().startActivity(intent/*, bundle);
-
-                    */
-                } else {
-                    Log.d(TAG, "Item: " + item.toString());
-                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.PROGRAM, program);
-
-                   /* Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                            getActivity(),
-                            ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                            DetailsActivity.SHARED_ELEMENT_NAME).toBundle();*/
-                    getActivity().startActivity(intent/*, bundle*/);
-                }
-            } else  if (item instanceof Video) {
-                Video movie = (Video) item;
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.MOVIE, movie);
+                intent.putExtra(DetailsActivity.PROGRAM, program);
 
-                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+               /* Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
                         ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
-                getActivity().startActivity(intent, bundle);
-            } else if (item instanceof String) {
-                if (((String) item).indexOf(getString(R.string.error_fragment)) >= 0) {
-                    Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(getActivity(), ((String) item), Toast.LENGTH_SHORT)
-                            .show();
-                }
+                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();*/
+                getActivity().startActivity(intent/*, bundle*/);
+            } else  if (item instanceof TvProgram) {
+                ((TvProgram) item).getCurrentPlayedVideo(new Callback<Video>() {
+                    @Override
+                    public void call(Video movie) {
+                        Intent intent = new Intent(getActivity(), PlaybackOverlayActivity.class);
+                        intent.putExtra(DetailsActivity.MOVIE, movie);
+                        if (item instanceof TvProgram) {
+                            intent.putExtra(DetailsActivity.TV_PROGRAM, (TvProgram) item);
+                        }
+
+                        getActivity().startActivity(intent);
+                    }
+                });
+
             }
         }
     }
@@ -236,13 +247,13 @@ public class MainFragment extends BrowseFragment {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Row row) {
-            if (item instanceof Video) {
+            if (item instanceof Video) {/*
                 try {
                     mBackgroundURI = new URI(((Video) item).getBackgroundImageUrl());
                     startBackgroundTimer();
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
 
         }

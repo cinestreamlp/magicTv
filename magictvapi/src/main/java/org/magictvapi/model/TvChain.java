@@ -16,4 +16,11 @@ public abstract class TvChain extends Tile {
      * @param callback the folders callback
      */
     public abstract void getFolders(Callback<List<Folder>> callback);
+
+    /**
+     * Load tv programs
+     *
+     * @param callback
+     */
+    public abstract void getTvProgram(Callback<TvProgram> callback);
 }

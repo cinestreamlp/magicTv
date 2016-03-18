@@ -8,7 +8,7 @@ package org.magictvapi;
 public interface Callback<T> {
     /**
      * methods for eun callback
-     * @param params
+     * @param param
      */
     void call(T param);
 }

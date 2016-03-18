@@ -41,7 +41,6 @@
 
 
     <string name="clip_not_playable_rating">"Ce programme n'est pas accessible aux moins de %1$s ans."</string>
-    <string name="clip_not_playable_now">"Cette vidéo est interdite aux moins de 16 ans. Elle n'est accessible qu'entre %1$s et %2$s."</string>
     <string name="settings_parameters_parental_control_key">settings_parameters_parental_control_key</string>
     <string name="settings_version_code">settings_version_code</string>
     <string name="settings_parameters_push_notification_key">settings_parameters_push_notification_key</string>

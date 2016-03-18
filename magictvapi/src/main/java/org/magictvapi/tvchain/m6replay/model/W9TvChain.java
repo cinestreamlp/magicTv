@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * Created by thomas on 11/03/2016.
  */
-public class M6TvChain extends TvChain {
-    public static final String CHAIN_NAME = "m6_replay";
+public class W9TvChain extends TvChain {
+    public static final String CHAIN_NAME = "w9_replay";
 
     @Override
     public void getFolders(Callback<List<Folder>> callback) {
@@ -22,7 +22,7 @@ public class M6TvChain extends TvChain {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(118, "m6");
+        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(119, "w9");
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
     }

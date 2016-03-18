@@ -3,44 +3,42 @@ package org.magictvapi.tvchain.m6replay.loader;
 import android.util.Log;
 import android.util.Xml;
 
-import org.magictvapi.loader.Loader;
 import org.magictvapi.model.Folder;
 import org.magictvapi.model.Program;
-import org.magictvapi.model.TvChain;
 import org.magictvapi.tvchain.m6replay.model.M6Folder;
 import org.magictvapi.tvchain.m6replay.model.M6Program;
-import org.magictvapi.tvchain.m6replay.model.M6TvChain;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by thomas on 11/03/2016.
- *
- * M6ChainLoader for m6 tv chain
- * m6 is loaded by sfr because m6 replay app is protected by drm
+ * Created by thomas on 16/03/2016.
  */
-public class M6ChainLoader extends XMLLoader<TvChain> {
+public class M6TvFolderLoader extends XMLLoader<List<Folder>> {
     private static final String INFO_URL = "http://wsaetv.sfr.com/5.0/WSAE?appId=fusion_gphone4&appVersion=7.0.3&method=getVODCategories&version=1";
 
     private static final String IMAGE_URL = "http://images.wsaetv.sfr.com/IMAGESTOOLS/BARAKA/ORIGINAL_SIZE/";
 
-    private static final String TAG = M6ChainLoader.class.getName();
+    private static final String TAG = M6TvFolderLoader.class.getName();
+    private final String chainName;
+
+    public M6TvFolderLoader(String chainName) {
+        this.chainName = chainName;
+    }
+
     @Override
-    protected TvChain doInBackground(Void... params) {
-        M6TvChain tvChain = new M6TvChain();
-        tvChain.setId(6);
-        tvChain.setTitle("M6");
-        tvChain.setImageUrl("https://upload.wikimedia.org/wikipedia/fr/thumb/2/22/M6_2009.svg/495px-M6_2009.svg.png");
+    protected List<Folder> doInBackground(Void... params) {
+        List<Folder> folders = new ArrayList<>();
 
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(new URL(INFO_URL).openStream(), null);
 
-            //parser.require(XmlPullParser.START_TAG, "", "bundle");
             while (parser.next() != XmlPullParser.END_TAG) {
                 if (parser.getEventType() != XmlPullParser.START_TAG) {
                     continue;
@@ -48,8 +46,8 @@ public class M6ChainLoader extends XMLLoader<TvChain> {
 
                 String name = parser.getName();
                 if (name.equals("bundle")) {
-                    if ("m6_replay".equals(parser.getAttributeValue("", "id"))) {
-                        parseFolders(parser, tvChain);
+                    if (chainName.equals(parser.getAttributeValue("", "id"))) {
+                        parseFolders(parser, folders);
                         Log.i(TAG, "ici");
                     } else {
                         skip(parser);
@@ -62,10 +60,10 @@ public class M6ChainLoader extends XMLLoader<TvChain> {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        return tvChain;
+        return folders;
     }
 
-    private void parseFolders(XmlPullParser parser, M6TvChain tvChain) {
+    private void parseFolders(XmlPullParser parser, List<Folder> tvChain) {
         goToNext("category", parser);
         goToNext("categories", parser);
 
@@ -78,7 +76,7 @@ public class M6ChainLoader extends XMLLoader<TvChain> {
 
                 String name = parser.getName();
                 if (name.equals("category")) {
-                    tvChain.addFolder(parseFolder(parser));
+                    tvChain.add(parseFolder(parser));
                 } else {
                     skip(parser);
                 }

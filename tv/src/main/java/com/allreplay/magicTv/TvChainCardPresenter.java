@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package com.allreplay.magicTv;
 
 import android.content.Context;
@@ -27,19 +13,16 @@ import android.view.ViewGroup;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import org.magictvapi.Callback;
-import org.magictvapi.model.TvProgram;
-import org.magictvapi.model.Video;
+import org.magictvapi.model.TvChain;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 
-/*
- * A ProgramCardPresenter is used to generate Views and bind Objects to them on demand.
- * It contains an Image CardView
+/**
+ * Created by thomas on 16/03/2016.
  */
-public class MovieCardPresenter extends Presenter {
+public class TvChainCardPresenter extends Presenter {
     private static final String TAG = "ProgramCardPresenter";
 
     private static Context mContext;
@@ -49,7 +32,7 @@ public class MovieCardPresenter extends Presenter {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     static class ViewHolder extends Presenter.ViewHolder {
-        private Video mMovie;
+        private TvChain mMovie;
         private ImageCardView mCardView;
         private Drawable mDefaultCardImage;
         private PicassoImageCardViewTarget mImageCardViewTarget;
@@ -61,11 +44,11 @@ public class MovieCardPresenter extends Presenter {
             mDefaultCardImage = mContext.getResources().getDrawable(R.drawable.movie);
         }
 
-        public void setVideo(Video m) {
+        public void setVideo(TvChain m) {
             mMovie = m;
         }
 
-        public Video getMovie() {
+        public TvChain getMovie() {
             return mMovie;
         }
 
@@ -97,37 +80,21 @@ public class MovieCardPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(final Presenter.ViewHolder viewHolder, Object item) {
-        Video movie = null;
-        if (item instanceof TvProgram) {
-            ((TvProgram) item).getCurrentPlayedVideo(new Callback<Video>() {
-                @Override
-                public void call(Video param) {
-                    loadVideoInfos((ViewHolder) viewHolder, param);
-                }
-            });
-        } else {
-            loadVideoInfos((ViewHolder) viewHolder, (Video) item);
-        }
-    }
+    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
 
-    private void loadVideoInfos(ViewHolder viewHolder, Video movie) {
-        viewHolder.setVideo(movie);
+        TvChain movie = (TvChain) item;
+        ((ViewHolder) viewHolder).setVideo(movie);
 
         Log.d(TAG, "onBindViewHolder");
-        viewHolder.mCardView.setTitleText(movie.getTitle());
-
-        String formattedDuration = Utils.formatMillis(((int) movie.getDuration()));
-        String publicationDate = simpleDateFormat.format(movie.getPublicationDate().getTime());
-
-        viewHolder.mCardView.setContentText(publicationDate + " - " + formattedDuration);
-        viewHolder.mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
+        ((ViewHolder) viewHolder).mCardView.setTitleText(movie.getTitle());
+        ((ViewHolder) viewHolder).mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
 
         try {
-            viewHolder.updateCardViewImage(new URI(movie.getImageUrl() == null ? "http://error" : movie.getImageUrl()));
+            ((ViewHolder) viewHolder).updateCardViewImage(new URI(movie.getImageUrl() == null ? "http://error" : movie.getImageUrl()));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override

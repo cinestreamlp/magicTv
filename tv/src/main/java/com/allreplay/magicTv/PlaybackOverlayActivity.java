@@ -32,12 +32,12 @@ public class PlaybackOverlayActivity extends Activity implements
         PlaybackOverlayFragment.OnVideoActionListener {
     private static final String TAG = "PlaybackOverlayActivity";
 
-    private static final double MEDIA_HEIGHT = 0.95;
-    private static final double MEDIA_WIDTH = 0.95;
-    private static final double MEDIA_TOP_MARGIN = 0.025;
-    private static final double MEDIA_RIGHT_MARGIN = 0.025;
-    private static final double MEDIA_BOTTOM_MARGIN = 0.025;
-    private static final double MEDIA_LEFT_MARGIN = 0.025;
+    private static final double MEDIA_HEIGHT = 1;
+    private static final double MEDIA_WIDTH = 1;
+    private static final double MEDIA_TOP_MARGIN = 0;
+    private static final double MEDIA_RIGHT_MARGIN = 0;
+    private static final double MEDIA_BOTTOM_MARGIN = 0;
+    private static final double MEDIA_LEFT_MARGIN = 0;
 
     private VideoView mVideoView;
     private PlaybackState mPlaybackState = PlaybackState.IDLE;
@@ -160,6 +160,10 @@ public class PlaybackOverlayActivity extends Activity implements
             }
         });
 
+    }
+
+    public VideoView getVideoView() {
+        return mVideoView;
     }
 
     /*

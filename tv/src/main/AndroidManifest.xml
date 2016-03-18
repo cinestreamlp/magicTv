@@ -19,11 +19,11 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Leanback" >
         <activity
-            android:name="com.allreplay.magicTv.MainActivity"
+            android:name=".MainActivity"
             android:icon="@drawable/app_banner"
             android:label="@string/app_name"
             android:logo="@drawable/app_banner"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,6 +33,7 @@
         <activity android:name="com.allreplay.magicTv.DetailsActivity" />
         <activity android:name="com.allreplay.magicTv.PlaybackOverlayActivity" />
         <activity android:name="com.allreplay.magicTv.BrowseErrorActivity" />
+        <activity android:name="com.allreplay.magicTv.TvChainDetailActivity" />
     </application>
 
 </manifest>
