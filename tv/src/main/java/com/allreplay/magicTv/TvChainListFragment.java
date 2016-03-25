@@ -12,8 +12,8 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 
-import org.magictvapi.TvChainManager;
-import org.magictvapi.model.TvChain;
+import org.magictvapi.ChannelManager;
+import org.magictvapi.model.Channel;
 
 import java.util.List;
 
@@ -37,9 +37,9 @@ public class TvChainListFragment extends BrowseFragment {
         ArrayObjectAdapter mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
 
-        final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new TvChainCardPresenter());
-        List<TvChain> chains = TvChainManager.getChains();
-        for (TvChain chain: chains) {
+        final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new ChannelCardPresenter());
+        List<Channel> chains = ChannelManager.getChains();
+        for (Channel chain: chains) {
             listRowAdapter.add(chain);
         }
         mRowsAdapter.add(new ListRow(listRowAdapter));
@@ -55,8 +55,8 @@ public class TvChainListFragment extends BrowseFragment {
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
-            if (item instanceof TvChain) {
-                TvChain program = (TvChain) item;
+            if (item instanceof Channel) {
+                Channel program = (Channel) item;
                 Intent intent = new Intent(getActivity(), TvChainDetailActivity.class);
                 intent.putExtra(DetailsActivity.CHAIN, program);
 

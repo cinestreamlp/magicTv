@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "com.allreplay.allreplay"
+        applicationId "com.allreplay.magicTv"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1

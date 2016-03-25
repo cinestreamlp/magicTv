@@ -76,6 +76,7 @@ public class MovieCardPresenter extends Presenter {
         protected void updateCardViewImage(URI uri) {
             Picasso.with(mContext)
                     .load(uri.toString())
+                    .placeholder(R.drawable.loading_image)
                     .resize(Utils.convertDpToPixel(mContext, CARD_WIDTH),
                             Utils.convertDpToPixel(mContext, CARD_HEIGHT))
                     .error(mDefaultCardImage)

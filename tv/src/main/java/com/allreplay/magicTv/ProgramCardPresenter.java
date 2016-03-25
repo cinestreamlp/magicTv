@@ -28,7 +28,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.magictvapi.model.Program;
-import org.magictvapi.model.Video;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,6 +71,7 @@ public class ProgramCardPresenter extends Presenter {
         protected void updateCardViewImage(URI uri) {
             Picasso.with(mContext)
                     .load(uri.toString())
+                    .placeholder(R.drawable.loading_image)
                     .resize(Utils.convertDpToPixel(mContext, CARD_WIDTH),
                             Utils.convertDpToPixel(mContext, CARD_HEIGHT))
                     .error(mDefaultCardImage)

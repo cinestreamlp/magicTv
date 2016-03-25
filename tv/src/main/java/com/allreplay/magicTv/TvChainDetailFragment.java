@@ -42,10 +42,11 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.magictvapi.Callback;
+import org.magictvapi.ChannelManager;
 import org.magictvapi.Config;
+import org.magictvapi.model.Channel;
 import org.magictvapi.model.Folder;
 import org.magictvapi.model.Program;
-import org.magictvapi.model.TvChain;
 import org.magictvapi.model.TvProgram;
 import org.magictvapi.model.Video;
 
@@ -58,6 +59,7 @@ import java.util.TimerTask;
 
 public class TvChainDetailFragment extends BrowseFragment {
     private static final String TAG = "TvChainDetailFragment";
+    public static final String CHANNEL_ID = "chain-id";
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int GRID_ITEM_WIDTH = 200;
@@ -83,7 +85,6 @@ public class TvChainDetailFragment extends BrowseFragment {
         loadRows();
 
         setupEventListeners();
-
     }
 
     @Override
@@ -95,12 +96,12 @@ public class TvChainDetailFragment extends BrowseFragment {
         }
     }
 
-    public void loadBadge(final TvChain tvChain) {
+    public void loadBadge(final Channel channel) {
         AsyncTask<Void, Void, BitmapDrawable> task = new AsyncTask<Void, Void, BitmapDrawable>() {
             @Override
             protected BitmapDrawable doInBackground(Void... params) {
                 try {
-                    return new BitmapDrawable(null, new URL(tvChain.getImageUrl()).openStream());
+                    return new BitmapDrawable(null, new URL(channel.getImageUrl()).openStream());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -113,7 +114,7 @@ public class TvChainDetailFragment extends BrowseFragment {
                 try {
                     setBadgeDrawable(image);
                 } catch (Exception e) {
-                    setTitle(tvChain.getTitle());
+                    setTitle(channel.getTitle());
                     Log.e(TAG, e.getMessage(), e);
                 }
             }
@@ -127,13 +128,23 @@ public class TvChainDetailFragment extends BrowseFragment {
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
 
-        TvChain tvChain = (TvChain) getActivity().getIntent().getSerializableExtra(DetailsActivity.CHAIN);
-
         Config.context = this.getActivity();
+        Channel channel = null;
+        // comme on from direct tv or from magic Tv
+        final String channelId = getActivity().getIntent().getStringExtra(CHANNEL_ID);
+        final boolean fromLiveChannel = channelId != null;
+        if (channelId != null) {
+            channel = ChannelManager.getChannel(Integer.parseInt(channelId));
+            getView().setBackgroundColor(getResources().getColor(R.color.black));
+        } else {
+            channel = (Channel) getActivity().getIntent().getSerializableExtra(DetailsActivity.CHAIN);
+        }
+        if (channel == null) {
+            Log.e("TvChainDetailFragment", "Erreur aucune paramètre de chaine ("+CHANNEL_ID+" ou "+DetailsActivity.CHAIN+" )");
+        }
+        loadBadge(channel);
 
-        loadBadge(tvChain);
-
-        tvChain.getFolders(new Callback<List<Folder>>() {
+        channel.getFolders(new Callback<List<Folder>>() {
             @Override
             public void call(final List<Folder> folders) {
                 mProgramCardPresenter = new ProgramCardPresenter();
@@ -152,25 +163,27 @@ public class TvChainDetailFragment extends BrowseFragment {
                 }
             }
         });
-
-        tvChain.getTvProgram(new Callback<TvProgram>() {
-            @Override
-            public void call(final TvProgram tvProgram) {
-                tvProgram.getCurrentPlayedVideo(new Callback<Video>() {
-                    @Override
-                    public void call(Video currentVideo) {
-                        if (currentVideo != null) {
-                            HeaderItem header = new HeaderItem(0, "Direct");
-                            final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new MovieCardPresenter());
-                            listRowAdapter.add(tvProgram);
-                            mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
-                            setSelectedPosition(0);
+        // dont load direct tile when we come from live channel app
+        if (!fromLiveChannel) {
+            channel.getTvProgram(new Callback<TvProgram>() {
+                @Override
+                public void call(final TvProgram tvProgram) {
+                    tvProgram.getCurrentPlayedVideo(new Callback<Video>() {
+                        @Override
+                        public void call(Video currentVideo) {
+                            if (currentVideo != null) {
+                                HeaderItem header = new HeaderItem(0, "Direct");
+                                final ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new MovieCardPresenter());
+                                listRowAdapter.add(tvProgram);
+                                mRowsAdapter.add(0, new ListRow(header, listRowAdapter));
+                                setSelectedPosition(0);
+                            }
                         }
-                    }
-                });
+                    });
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void prepareBackgroundManager() {
