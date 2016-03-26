@@ -40,8 +40,6 @@ public class ProgramDetailsFragment extends DetailsFragment {
     private static final int DETAIL_THUMB_WIDTH = 274;
     private static final int DETAIL_THUMB_HEIGHT = 274;
 
-    private static final int NUM_COLS = 10;
-
     private static final String PROGRAM = "Program";
 
     private Program mSelectedProgram;

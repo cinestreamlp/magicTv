@@ -43,8 +43,8 @@ public class MovieCardPresenter extends Presenter {
     private static final String TAG = "ProgramCardPresenter";
 
     private static Context mContext;
-    private static int CARD_WIDTH = 313;
-    private static int CARD_HEIGHT = 176;
+    private static int CARD_WIDTH = 400;
+    private static int CARD_HEIGHT = 224;
 
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 

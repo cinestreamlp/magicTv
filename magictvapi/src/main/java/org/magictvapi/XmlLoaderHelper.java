@@ -1,23 +1,20 @@
-package org.magictvapi.channel.m6replay.loader;
+package org.magictvapi;
 
 import android.util.Log;
 
-import org.magictvapi.XmlLoaderHelper;
+import org.magictvapi.channel.m6replay.loader.XMLLoader;
+import org.magictvapi.loader.Loader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
- * Created by deblock on 13/03/2016.
+ * Created by thomas on 25/03/2016.
  */
-public abstract class XMLLoader<T> extends XmlLoaderHelper<T> {
+public abstract class XmlLoaderHelper<T> extends Loader<T> {
     private static final String TAG = XMLLoader.class.getName();
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     protected void goToNext(String ExcpectedName, XmlPullParser parser) {
         try {
@@ -64,28 +61,11 @@ public abstract class XMLLoader<T> extends XmlLoaderHelper<T> {
         return  returnString;
     }
 
-    protected Calendar getDateContent(XmlPullParser parser) throws IOException, XmlPullParserException {
+    protected Integer getIntContent(XmlPullParser parser) throws IOException, XmlPullParserException {
         try {
-            Calendar c = Calendar.getInstance();
-            c.setTime(DATE_FORMAT.parse(getStringContent(parser)));
-            return c;
-        } catch (ParseException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return null;
-        }
-    }
-
-    protected Calendar getTimestamp(XmlPullParser parser) throws IOException, XmlPullParserException {
-        try {
-            Calendar c = Calendar.getInstance();
-            String content = getStringContent(parser);
-            long readTime = Long.parseLong(content) * 1000;
-            c.setTimeInMillis(readTime/* + TimeZone.getDefault().getOffset(readTime) */);
-
-            return c;
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-            return null;
+            return Integer.parseInt(getStringContent(parser));
+        } catch (NumberFormatException ex) {
+            return 0;
         }
     }
 }

@@ -1,9 +1,9 @@
 package org.magictvapi.channel.m6replay.model;
 
 import org.magictvapi.Callback;
+import org.magictvapi.channel.m6replay.loader.M6VideosGroupLoader;
 import org.magictvapi.model.Program;
 import org.magictvapi.model.VideoGroup;
-import org.magictvapi.channel.m6replay.loader.M6VideosLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +17,11 @@ public class M6Program extends Program {
 
     public void loadVideoGroups(final Callback<List<VideoGroup>> finalCallback) {
         if (videogroups.isEmpty()) {
-            M6VideosLoader videosLoader = new M6VideosLoader(this);
-            videosLoader.onSuccess(new Callback<VideoGroup>() {
+            M6VideosGroupLoader videosLoader = new M6VideosGroupLoader(this.getId());
+            videosLoader.onSuccess(new Callback<List<VideoGroup>>() {
                 @Override
-                public void call(VideoGroup params) {
-                    videogroups.add(params);
+                public void call(List<VideoGroup> params) {
+                    videogroups.addAll(params);
                     finalCallback.call(videogroups);
                 }
             });

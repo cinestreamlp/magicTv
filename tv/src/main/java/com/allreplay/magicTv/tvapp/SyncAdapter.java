@@ -176,7 +176,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         ContentValues values = new ContentValues();
         values.put(TvContract.Programs.COLUMN_CHANNEL_ID, channelId);
         values.put(TvContract.Programs.COLUMN_TITLE, video.getTitle());
-        values.put(TvContract.Programs.COLUMN_LONG_DESCRIPTION, video.getDescription());
+        if (video.getDescription() != null) {
+            values.put(TvContract.Programs.COLUMN_LONG_DESCRIPTION, video.getDescription());
+            String shortDescription = video.getDescription();
+            if (shortDescription.length() > 256) {
+                shortDescription = shortDescription.substring(0, 250) + "...";
+            }
+            values.put(TvContract.Programs.COLUMN_SHORT_DESCRIPTION, shortDescription);
+        }
         values.put(TvContract.Programs.COLUMN_POSTER_ART_URI, video.getBackgroundImageUrl());
         values.put(TvContract.Programs.COLUMN_THUMBNAIL_URI, video.getImageUrl());
         values.put(TvContract.Programs.COLUMN_START_TIME_UTC_MILLIS, video.getPublicationDate().getTimeInMillis());

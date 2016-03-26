@@ -121,7 +121,7 @@ public class SimpleTvInputSetupActivity extends Activity {
         }
 
         SyncUtils.setUpPeriodicSync(this, mInputId);
-        SyncUtils.requestSync(mInputId, true);
+        SyncUtils.requestSync(mInputId, false);
 
     }
 

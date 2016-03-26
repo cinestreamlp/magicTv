@@ -3,16 +3,17 @@ package org.magictvapi.channel.m6replay.loader;
 import android.util.Log;
 import android.util.Xml;
 
-import org.magictvapi.model.Program;
-import org.magictvapi.model.Video;
-import org.magictvapi.model.VideoGroup;
 import org.magictvapi.channel.m6replay.model.M6Video;
 import org.magictvapi.channel.m6replay.model.M6VideoGroup;
+import org.magictvapi.model.Video;
+import org.magictvapi.model.VideoGroup;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by thomas on 11/03/2016.
@@ -20,21 +21,21 @@ import java.net.URL;
  * M6ChainLoader for m6 tv chain
  * m6 is loaded by sfr because m6 replay app is protected by drm
  */
-public class M6VideosLoader extends XMLLoader<VideoGroup> {
+public class M6VideosGroupLoader extends XMLLoader<List<VideoGroup>> {
     private static final String INFO_URL = "http://wsaetv.sfr.com/5.0/WSAE?appId=fusion_gphone4&appVersion=7.0.3&method=getVODCategoryDetails&version=1&categoryId=";
 
     private static final String IMAGE_URL = "http://images.wsaetv.sfr.com/IMAGESTOOLS/BARAKA/ORIGINAL_SIZE/";
 
-    private static final String TAG = M6VideosLoader.class.getName();
+    private static final String TAG = M6VideosGroupLoader.class.getName();
 
-    private Program program;
+    private Integer programId;
 
-    public M6VideosLoader(Program m6Program) {
-        this.program = m6Program;
+    public M6VideosGroupLoader(Integer programId) {
+        this.programId = programId;
     }
 
     @Override
-    protected VideoGroup doInBackground(Void... params) {
+    protected List<VideoGroup> doInBackground(Void... params) {
         M6VideoGroup videoGroup = new M6VideoGroup();
         videoGroup.setId(0);
         videoGroup.setTitle("A voir");
@@ -42,7 +43,7 @@ public class M6VideosLoader extends XMLLoader<VideoGroup> {
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(new URL(INFO_URL + this.program.getId()).openStream(), null);
+            parser.setInput(new URL(INFO_URL + programId).openStream(), null);
 
             while (parser.next() != XmlPullParser.END_TAG) {
                 if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -60,7 +61,9 @@ public class M6VideosLoader extends XMLLoader<VideoGroup> {
             Log.e(TAG, e.getMessage(), e);
         }
 
-        return videoGroup;
+        List<VideoGroup> videogroups = new ArrayList<>();
+        videogroups.add(videoGroup);
+        return videogroups;
     }
 
     private void parseVideos(XmlPullParser parser, M6VideoGroup videoGroup) {
