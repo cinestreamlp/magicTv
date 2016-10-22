@@ -22,7 +22,7 @@ public class M6Channel extends Channel {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(118, "m6");
+        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(118, "m6", 2568);
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
     }

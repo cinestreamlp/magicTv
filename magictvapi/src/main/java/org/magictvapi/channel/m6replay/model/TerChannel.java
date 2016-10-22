@@ -20,7 +20,7 @@ public class TerChannel extends Channel {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(1403, "six_ter");
+        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(1403, "six_ter", 7237);
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
     }

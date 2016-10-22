@@ -23,4 +23,5 @@ public abstract class Channel extends Tile {
      * @param callback
      */
     public abstract void getTvProgram(Callback<TvProgram> callback);
+
 }

@@ -1,1 +1,1 @@
-include ':tv', ':magictvapi'
+include ':tv', ':magictvapi', ':phone'

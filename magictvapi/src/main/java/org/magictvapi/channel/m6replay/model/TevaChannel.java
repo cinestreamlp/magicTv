@@ -1,6 +1,7 @@
 package org.magictvapi.channel.m6replay.model;
 
 import org.magictvapi.Callback;
+import org.magictvapi.channel.m6replay.loader.M6TvProgramLoader;
 import org.magictvapi.model.Folder;
 import org.magictvapi.model.Channel;
 import org.magictvapi.model.TvProgram;
@@ -21,8 +22,8 @@ public class TevaChannel extends Channel {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        /*M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(191, "teva");
+        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(191, "teva", 18453);
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
-   */ }
+    }
 }

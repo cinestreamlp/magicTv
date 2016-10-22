@@ -86,7 +86,6 @@ public class MovieCardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        Log.d(TAG, "onCreateViewHolder");
         mContext = parent.getContext();
 
         ImageCardView cardView = new ImageCardView(mContext);
@@ -133,7 +132,6 @@ public class MovieCardPresenter extends Presenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        Log.d(TAG, "onUnbindViewHolder");
     }
 
     @Override

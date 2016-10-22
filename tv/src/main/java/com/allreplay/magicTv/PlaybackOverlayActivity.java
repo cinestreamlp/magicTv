@@ -15,14 +15,21 @@ package com.allreplay.magicTv;
 
 import android.app.Activity;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.VideoView;
 
+import com.devbrackets.android.exomedia.ui.widget.EMVideoView;
+
 import org.magictvapi.Callback;
+import org.magictvapi.cookies.CookieManager;
 import org.magictvapi.model.Video;
+
+import java.net.CookieHandler;
+import java.net.CookiePolicy;
 
 
 /**
@@ -43,6 +50,7 @@ public class PlaybackOverlayActivity extends Activity implements
     private PlaybackState mPlaybackState = PlaybackState.IDLE;
     private Video currentItem;
 
+
     /**
      * Called when the activity is first created.
      */
@@ -53,6 +61,8 @@ public class PlaybackOverlayActivity extends Activity implements
         loadViews();
         //setupCallbacks();
         overScan();
+
+        InitCookies.initialize();
     }
 
     @Override
@@ -69,8 +79,9 @@ public class PlaybackOverlayActivity extends Activity implements
             movie.getDataUrl(new Callback<String>() {
                 @Override
                 public void call(String path) {
-                    Log.e(TAG, "load path " + path);
-                    mVideoView.setVideoPath(path);
+                Log.i(TAG, "load path " + path);
+                //mVideoView.set
+                mVideoView.setVideoURI(Uri.parse(path));
                 }
             });
         }

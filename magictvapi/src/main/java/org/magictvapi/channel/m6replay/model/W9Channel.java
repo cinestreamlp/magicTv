@@ -22,7 +22,7 @@ public class W9Channel extends Channel {
 
     @Override
     public void getTvProgram(Callback<TvProgram> callback) {
-        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(119, "w9");
+        M6TvProgramLoader tvProgramLoader = new M6TvProgramLoader(119, "w9", 3079);
         tvProgramLoader.onSuccess(callback);
         tvProgramLoader.execute();
     }

@@ -1,6 +1,7 @@
 package org.magictvapi.channel.pluzz.model;
 
 import org.magictvapi.Callback;
+import org.magictvapi.channel.pluzz.loader.PluzzVideoDirectLoader;
 import org.magictvapi.model.DirectVideo;
 import org.magictvapi.model.Video;
 
@@ -17,6 +18,8 @@ public class PluzzDirectVideo extends Video implements DirectVideo {
 
     @Override
     public void getDataUrl(Callback<String> callback) {
-        callback.call(String.format("http://live.francetv.fr/simulcast/%s/hls_v1/index.m3u8", new String[]{chainId}));
+        new PluzzVideoDirectLoader(String.format("http://live.francetv.fr/simulcast/%s/hls_v1/index.m3u8", new String[]{chainId}))
+        .onSuccess(callback)
+        .execute();
     }
 }

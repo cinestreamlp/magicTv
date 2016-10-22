@@ -33,8 +33,11 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.Surface;
 
+import com.allreplay.magicTv.InitCookies;
+
 import org.magictvapi.Callback;
 import org.magictvapi.ChannelManager;
+import org.magictvapi.Config;
 import org.magictvapi.model.Channel;
 import org.magictvapi.model.TvProgram;
 import org.magictvapi.model.Video;
@@ -55,6 +58,7 @@ import java.util.List;
 public class SimpleTvInputService extends TvInputService {
     @Override
     public Session onCreateSession(String inputId) {
+        InitCookies.initialize();
         return new SimpleSessionImpl(this);
     }
 
@@ -103,11 +107,12 @@ public class SimpleTvInputService extends TvInputService {
 
         @Override
         public boolean onTune(final Uri channelUri) {
+            Config.context = this.context;
+
             String[] projection = {TvContract.Channels.COLUMN_SERVICE_ID, BaseColumns._ID};
             Log.d("SimpleTvInputService", "channelUri = " + channelUri);
 
             Cursor cursor = null;
-            final ContentResolver contentResolver = getContentResolver();
             try {
                 cursor = getContentResolver().query(channelUri, projection, null, null, null);
                 if (cursor == null || cursor.getCount() == 0) {
@@ -124,23 +129,24 @@ public class SimpleTvInputService extends TvInputService {
                     protected Void doInBackground(Void... params) {
                         final Channel channel = ChannelManager.getChannel(channelNumber);
                         if (channel != null) {
+                            Log.d("SimpleTvInputService", "La chaine " + channelNumber + " a été trouvée");
                             channel.getTvProgram(new Callback<TvProgram>() {
                                 @Override
                                 public void call(TvProgram param) {
-
+                                    Log.d("SimpleTvInputService", "getTvProgram ==> OK");
                                     param.getCurrentPlayedVideo(new Callback<Video>() {
                                         @Override
                                         public void call(Video video) {
-                                            ArrayList<Video> videos = new ArrayList<Video>();
-                                            videos.add(video);
-                                            updatePrograms(channelUri, videos, channelId);
-                                            video.getDataUrl(new Callback<String>() {
-                                                @Override
-                                                public void call(String param) {
-                                                    startPlayback(param);
+                                        ArrayList<Video> videos = new ArrayList<Video>();
+                                        videos.add(video);
+                                        updatePrograms(channelUri, videos, channelId);
+                                        video.getDataUrl(new Callback<String>() {
+                                            @Override
+                                            public void call(String param) {
+                                                startPlayback(param);
 
-                                                }
-                                            });
+                                            }
+                                        });
                                         }
                                     });
                                 }

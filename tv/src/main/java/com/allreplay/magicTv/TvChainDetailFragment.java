@@ -38,6 +38,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.allreplay.magicTv.configuration.ConfigurationActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -123,8 +124,6 @@ public class TvChainDetailFragment extends BrowseFragment {
     }
 
     private void loadRows() {
-        // load M6 chains
-        // TODO load others chains
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setAdapter(mRowsAdapter);
 
@@ -141,12 +140,15 @@ public class TvChainDetailFragment extends BrowseFragment {
         }
         if (channel == null) {
             Log.e("TvChainDetailFragment", "Erreur aucune paramètre de chaine ("+CHANNEL_ID+" ou "+DetailsActivity.CHAIN+" )");
+            return;
         }
         loadBadge(channel);
 
+        Log.d("TvChainDetailFragment", "Channel.GetFolder");
         channel.getFolders(new Callback<List<Folder>>() {
             @Override
             public void call(final List<Folder> folders) {
+                Log.d("TvChainDetailFragment", "Folder founds");
                 mProgramCardPresenter = new ProgramCardPresenter();
 
                 for (Folder folder : folders) {
@@ -159,10 +161,18 @@ public class TvChainDetailFragment extends BrowseFragment {
                     });
 
                     HeaderItem header = new HeaderItem(folder.getId(), folder.getTitle());
-                    mRowsAdapter.add(new ListRow(header, listRowAdapter));
+                    mRowsAdapter.add(mRowsAdapter.size() - 1, new ListRow(header, listRowAdapter));
                 }
             }
         });
+
+        GridItemPresenter gridPresenter = new GridItemPresenter();
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(gridPresenter);
+        gridRowAdapter.add("Configuration");
+
+        HeaderItem header = new HeaderItem(9999, "Options");
+        mRowsAdapter.add(new ListRow(header, gridRowAdapter));
+
         // dont load direct tile when we come from live channel app
         if (!fromLiveChannel) {
             channel.getTvProgram(new Callback<TvProgram>() {
@@ -232,12 +242,7 @@ public class TvChainDetailFragment extends BrowseFragment {
                 Log.d(TAG, "Item: " + item.toString());
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(DetailsActivity.PROGRAM, program);
-
-               /* Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        getActivity(),
-                        ((ImageCardView) itemViewHolder.view).getMainImageView(),
-                        DetailsActivity.SHARED_ELEMENT_NAME).toBundle();*/
-                getActivity().startActivity(intent/*, bundle*/);
+                getActivity().startActivity(intent);
             } else  if (item instanceof TvProgram) {
                 ((TvProgram) item).getCurrentPlayedVideo(new Callback<Video>() {
                     @Override
@@ -251,7 +256,11 @@ public class TvChainDetailFragment extends BrowseFragment {
                         getActivity().startActivity(intent);
                     }
                 });
-
+            } else if (item instanceof String) {
+                // TODO gérer plusieurs type de configuration
+                // String is Configuration tile
+                Intent intent = new Intent(getActivity(), ConfigurationActivity.class);
+                getActivity().startActivity(intent);
             }
         }
     }

@@ -27,12 +27,14 @@ public class M6TvProgramLoader extends XMLLoader<TvProgram> {
 
     private final Integer epgId;
     private final String chain;
+    private final Integer cid;
 
     private final static String TAG = M6TvProgramLoader.class.getName();
 
-    public M6TvProgramLoader(Integer epgId, String chain) {
+    public M6TvProgramLoader(Integer epgId, String chain, Integer cid) {
         this.epgId = epgId;
         this.chain = chain;
+        this.cid = cid;
     }
 
     @Override
@@ -74,7 +76,7 @@ public class M6TvProgramLoader extends XMLLoader<TvProgram> {
     }
 
     private Video parseVideo(XmlPullParser parser) throws IOException, XmlPullParserException {
-        Video video = new M6DirectVideo(chain);
+        Video video = new M6DirectVideo(chain, cid);
         try {
             video.setId(Integer.parseInt(parser.getAttributeValue("", "id")));
         } catch (Exception e) {

@@ -81,7 +81,6 @@ public class ProgramCardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        Log.d(TAG, "onCreateViewHolder");
         mContext = parent.getContext();
 
         ImageCardView cardView = new ImageCardView(mContext);
@@ -98,7 +97,6 @@ public class ProgramCardPresenter extends Presenter {
             Program movie = (Program) item;
             ((ViewHolder) viewHolder).setMovie(movie);
 
-            Log.d(TAG, "onBindViewHolder");
             //if (movie.getCardImageUrl() != null) {
             ((ViewHolder) viewHolder).mCardView.setTitleText(movie.getTitle());
             ((ViewHolder) viewHolder).mCardView.setContentText(movie.getSubTitle());
@@ -116,7 +114,6 @@ public class ProgramCardPresenter extends Presenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        Log.d(TAG, "onUnbindViewHolder");
     }
 
     @Override

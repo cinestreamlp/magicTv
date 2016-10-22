@@ -48,6 +48,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.widget.VideoView;
 
+import com.devbrackets.android.exomedia.ui.widget.EMVideoView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 

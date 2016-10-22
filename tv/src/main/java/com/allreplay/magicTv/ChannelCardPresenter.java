@@ -68,7 +68,6 @@ public class ChannelCardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        Log.d(TAG, "onCreateViewHolder");
         mContext = parent.getContext();
 
         ImageCardView cardView = new ImageCardView(mContext);
@@ -85,7 +84,6 @@ public class ChannelCardPresenter extends Presenter {
         Channel movie = (Channel) item;
         ((ViewHolder) viewHolder).setVideo(movie);
 
-        Log.d(TAG, "onBindViewHolder");
         ((ViewHolder) viewHolder).mCardView.setTitleText(movie.getTitle());
         ((ViewHolder) viewHolder).mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
 
@@ -99,7 +97,6 @@ public class ChannelCardPresenter extends Presenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        Log.d(TAG, "onUnbindViewHolder");
     }
 
     @Override
